@@ -46,4 +46,7 @@ class AllListData {
     "Office (10 am - 6 pm delivery)",
     "AnyTime"
   ];
+
+// ! QUANTITY LIST
+  static var qtyData = ['1', '2', '3', 'more'];
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class EditFormFields extends StatefulWidget {
   bool obscureTxt;
@@ -125,6 +126,42 @@ class _ShowFormFieldsState extends State<ShowFormFields> {
               ),
             ),
           ],
+        ));
+  }
+}
+
+class QuanField extends StatefulWidget {
+  final TextEditingController? controller;
+  String? labelText;
+  dynamic itemsList;
+  dynamic onData;
+  dynamic buildMethod;
+  QuanField(
+      {Key? key,
+      this.controller,
+      this.labelText,
+      this.itemsList,
+      this.onData,
+      this.buildMethod})
+      : super(key: key);
+
+  @override
+  _QuanFieldState createState() => _QuanFieldState();
+}
+
+class _QuanFieldState extends State<QuanField> {
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+        controller: widget.controller,
+        decoration: InputDecoration(
+          labelText: widget.labelText,
+          suffixIcon: PopupMenuButton(
+            initialValue: 1.toString(),
+            icon: const Icon(Icons.arrow_drop_down),
+            onSelected: widget.onData,
+            itemBuilder: widget.buildMethod,
+          ),
         ));
   }
 }

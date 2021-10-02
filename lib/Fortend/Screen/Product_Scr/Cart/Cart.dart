@@ -3,9 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:thrid_ecom/Backend/Bloc_Pattern/RCLS/Cart/cartp_bloc.dart';
 import 'package:thrid_ecom/Fortend/Screen/Order/OrderwitnCart.dart';
 import 'package:thrid_ecom/Fortend/Widget/Appbar/CusAppbar.dart';
+import 'package:thrid_ecom/Fortend/Widget/Resuable%20Code/Form/AllFormField.dart';
 import 'package:thrid_ecom/Fortend/Widget/Resuable%20Code/Form/Buttons_C.dart';
 import 'package:thrid_ecom/Fortend/Widget/Resuable%20Code/Form/Text_C.dart';
+import 'package:thrid_ecom/Fortend/Widget/Resuable%20Code/ListShow/ListViewP.dart';
+import 'package:thrid_ecom/Fortend/Widget/Resuable%20Code/Pic_Icon/Image_C.dart';
 import 'package:thrid_ecom/Fortend/Widget/Resuable%20Code/Pic_Icon/Iocns_C.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CartScr extends StatefulWidget {
   static const routeName = '/cart-screens';
@@ -33,7 +37,6 @@ class _CartScrState extends State<CartScr> {
         Navigator.of(context).pushReplacementNamed(CartScr.routeName);
       }
     }, builder: (context, state) {
-      // print("produc page state: $state");
       if (state is CartLoadingState) {
         return Center(child: CircularProgressIndicator());
       }
@@ -41,7 +44,8 @@ class _CartScrState extends State<CartScr> {
         return Center(child: Text(' this is eror ${state.message}'));
       }
       if (state is CartLoadedState) {
-        return CartScr1(cartState: state.cartData, adrState: state.addressData);
+        return CartListViewScr(
+            mainState: state.cartData, adrState: state.addressData);
       }
       return Scaffold(
         body: Center(
@@ -52,260 +56,238 @@ class _CartScrState extends State<CartScr> {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/*                              // ! CART SCREEN                              */
-/* -------------------------------------------------------------------------- */
-
-class CartScr1 extends StatelessWidget {
-  dynamic cartState;
+class CartListViewScr extends StatefulWidget {
+  dynamic mainState;
   dynamic adrState;
   dynamic adrValue;
-  CartScr1({
+  CartListViewScr({
     Key? key,
-    this.cartState,
+    this.mainState,
     this.adrState,
     this.adrValue,
   }) : super(key: key);
 
   @override
+  _CartListViewScrState createState() => _CartListViewScrState();
+}
+
+class _CartListViewScrState extends State<CartListViewScr> {
+  final _form = GlobalKey<FormState>();
+  var items = ['1', '2', '3', 'more'];
+  // final qtyController = TextEditingController();
+  List<TextEditingController> _qtyController = [];
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(titleName: 'Cart'),
-      bottomNavigationBar: Row(
-        children: [Text('Total Price '), Text('Place Order')],
+      bottomNavigationBar: Container(
+        height: 40,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text(
+              'Total Price   ',
+              style: TextStyle(fontSize: 21),
+            ),
+            InkWell(
+              onTap: () {
+                // print(qtyController.text);
+                // ! CHECKOUT BTN
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) =>
+                //             // ! add PRODUCT ITEM DEIALS
+                //             OrderWithCart(
+                //                 adrState: widget.adrState,
+                //                 cartState: widget.mainState)));
+              },
+              child: Text(
+                'Place Order',
+                style: TextStyle(fontSize: 21),
+              ),
+            )
+          ],
+        ),
       ),
-      body: SafeArea(
-          child: cartState.isNotEmpty
+      body: SingleChildScrollView(
+          child: widget.mainState.isNotEmpty
               ? Container(
-                  child: Column(children: <Widget>[
-                  // ! Address Header
-                  Card(
-                    child: Container(
-                      width: double.infinity,
-                      height: 30,
-                      child: ListTile(
-                        onTap: () {},
-                        title: Column(
-                          children: [
-                            Text(
-                              'name',
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            Text(
-                              'fullAddress',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                            Text(
-                              'mobileNumber',
-                              style: TextStyle(fontSize: 15),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  child: Column(
+                  children: [
+                    // ! Address Header
+                    AddrShow(),
+                    /* -------------------------------------------------------------------------- */
+                    /*                           // ! PRODUCT LIST DATA                           */
+                    /* -------------------------------------------------------------------------- */
+                    Form(
+                      key: _form,
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: widget.mainState.length,
+                          itemBuilder: (context, index) {
+                            //  ! controller lsit
+                            _qtyController.add(new TextEditingController());
 
-                  // ! LISTVIEW BUIDER
-                  Flexible(
-                    child: ListView.builder(
-                        itemCount: cartState.length,
-                        itemBuilder: (context, index) {
-                          return CartListScr(cartNumber: cartState[index]);
-                        }),
-                  ),
-                  // // ! CHECKOUT BTN
-                  // CartCheckBtn(adrState: adrState, cartState: cartState)
-                ]))
+                            return Card(
+                              margin: EdgeInsets.only(
+                                  top: 10.0, left: 20.0, right: 20.0),
+                              color: Color(0xffEEEEEE),
+                              child: Container(
+                                width: double.infinity,
+                                height: 150,
+                                child: ListTile(
+                                  leading: CartPic(
+                                      widget.mainState[index].product.pic),
+
+                                  // Lists of titles
+                                  title: PrShow(),
+
+                                  // Item Add and Remove Container
+                                  subtitle: singItem(
+                                      cardNumber: widget.mainState[index],
+                                      index: index),
+                                  trailing: Icon(Icons.delete),
+                                ),
+                              ),
+                            );
+                          }),
+                    ),
+
+                    /* -------------------------------------------------------------------------- */
+                    /*                               // ! TOTAL PAGE                              */
+                    /* -------------------------------------------------------------------------- */
+                    TotalAmmount(),
+                  ],
+                ))
               : Center(child: Text('No product in Cart'))),
+    );
+  }
+
+  // ! SINGLE ITEM DATA
+  Widget singItem({dynamic cardNumber, required int index}) {
+    return Container(
+      width: 100,
+      child: QuanField(
+        labelText: 'Qty ${cardNumber.quantity.toString()}',
+        controller: _qtyController[index],
+        onData: (String? value) {
+          setState(() {
+            _qtyController[index].text = value!;
+          });
+          if (value == 'more') {
+            _qtyController[index].clear();
+          }
+        },
+        buildMethod: (BuildContext context) {
+          return items.map((var value) {
+            return new PopupMenuItem(
+                child: new Text(value.toString()), value: value);
+          }).toList();
+        },
+      ),
     );
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/*                            // ! CHECKOUT SCREEN                            */
-/* -------------------------------------------------------------------------- */
-class CartCheckBtn extends StatelessWidget {
-  dynamic adrState;
-  dynamic cartState;
-  CartCheckBtn({Key? key, this.adrState, this.cartState}) : super(key: key);
+// ! Product Show Data
+class PrShow extends StatelessWidget {
+  const PrShow({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-        color: Colors.black12,
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              // ! TOATAL PRICE DATA
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: <Widget>[
-                    TxtTitle(
-                      "Checkout Price:",
-                    ),
-                    Spacer(),
-                    Text(
-                      "Rs. 5000",
-                    ),
-                  ],
-                ),
-              ),
-              //  ! 2
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: <Widget>[
-                    TxtTitle(
-                      "Checkout Price:",
-                    ),
-                    Spacer(),
-                    Text(
-                      "Rs. 5000",
-                    ),
-                  ],
-                ),
-              ),
-
-              // ! CHECKOUT BTN
-              SingleBtn(
-                "Continue",
-                submitMethod: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              // ! add PRODUCT ITEM DEIALS
-                              OrderWithCart(
-                                  adrState: adrState, cartState: cartState)));
-                },
-              )
-            ]));
+    return Container(
+      margin: EdgeInsets.only(top: 10.0),
+      height: 80.0,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+              padding: EdgeInsets.only(bottom: 2.0),
+              child: Text(
+                'Title',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+              )),
+          Container(
+            padding: EdgeInsets.only(bottom: 3.0),
+            child: Text(
+              "Item Cetegory",
+              style: TextStyle(),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.only(bottom: 3.0),
+            child: Text(
+              '50',
+              style: TextStyle(color: Color(0xff374ABE)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/*                            // !CART LIST SCREEN                            */
-/* -------------------------------------------------------------------------- */
-class CartListScr extends StatelessWidget {
-  dynamic cartNumber;
-  CartListScr({Key? key, this.cartNumber}) : super(key: key);
+// ! Address CartLoadedState
+class AddrShow extends StatelessWidget {
+  const AddrShow({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Container(
-        height: 180,
-        width: double.infinity,
-        child: Column(
-          children: [
-            Card(
-              child: Row(children: <Widget>[
-                // ! 1  Product PIC
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: Container(
+          width: double.infinity,
+          height: 90,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('Name'),
+              Text('fullAddress'),
+              Text('Mobile Number'),
+              Text('add New  or Channge Address')
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-                Container(
-                  width: 100,
-                  height: 100,
-                  child: Image.network(
-                    cartNumber.product.pic == null
-                        ? ''
-                        : cartNumber.product.pic,
-                    width: 30.0,
-                    height: 30,
-                    fit: BoxFit.cover,
-                  ),
+// ! TOTAL ammountcount
+class TotalAmmount extends StatelessWidget {
+  const TotalAmmount({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: Container(
+          width: double.infinity,
+          height: 90,
+          child: ListTile(
+            onTap: () {},
+            title: Column(
+              children: [
+                Text(
+                  'name',
+                  style: TextStyle(fontSize: 15),
                 ),
-
-                // !2. CART DATA
-                Flexible(
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(children: <Widget>[
-                          // ! 2.1
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: TxtTitle(cartNumber.product.title),
-                              ),
-                            ],
-                          ),
-                          // ! 2.2 data
-                          Row(
-                            children: [
-                              TxtTitle("Price: "),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              SubTxtTitle(
-                                cartNumber.product.discountPrice.toString(),
-                              )
-                            ],
-                          ),
-                          // ! 2.3 DATA
-
-                          // Row(
-                          //   children: <Widget>[
-                          //     TxtTitle("Sub Total: "),
-                          //     SizedBox(
-                          //       width: 5,
-                          //     ),
-                          //     SubTxtTitle(
-                          //       'Rs ${cartNumber.quantity * cartNumber.product.discountPrice}',
-                          //     )
-                          //   ],
-                          // ),
-
-                          // ! 2.4 DATA
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              IconBtn2(icon: Icons.remove),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              // ! ITEM DATA
-                              Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(cartNumber.quantity.toString()),
-                                ),
-                              ),
-                              // ! END ITEM DATA
-                              SizedBox(
-                                width: 4,
-                              ),
-                              IconBtn2(icon: Icons.add),
-                            ],
-                          )
-                        ])))
-              ]),
-            ),
-
-            Divider(),
-            // ! DELETE BUTTON FOR SAVE FOR lATER
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                ForthBtn(
-                  'Remove',
-                  submitMethod: () {
-                    // ! CART ITEM DELETE
-                    BlocProvider.of<CartpBloc>(context)
-                      ..add(ItemDeleteCartEvent(
-                          product_id: cartNumber.product.id.toString()));
-
-                    // ! END CART ITEM METHOD
-                  },
+                Text(
+                  'fullAddress',
+                  style: TextStyle(fontSize: 12),
                 ),
-                ForthBtn(
-                  'Save For Later',
-                  submitMethod: () {},
+                Text(
+                  'mobileNumber',
+                  style: TextStyle(fontSize: 15),
                 ),
               ],
-            )
-          ],
+            ),
+          ),
         ),
       ),
     );

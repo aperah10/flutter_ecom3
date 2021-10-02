@@ -34,10 +34,17 @@ class CartPic extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 180,
+      width: 100,
+      child: Image.network(
+        cartPic,
+        width: 30.0,
+        height: 30,
+        fit: BoxFit.cover,
+      ),
       decoration: BoxDecoration(
           image: DecorationImage(
-        image: NetworkImage(cartPic == null ? '' : cartPic),
+        image: NetworkImage(cartPic == null ? 'No Pic' : cartPic),
+        // image: AssetImage(cartPic),
         fit: BoxFit.cover,
       )),
     );

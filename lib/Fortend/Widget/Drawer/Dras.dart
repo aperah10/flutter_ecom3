@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:thrid_ecom/Fortend/Screen/Product_Scr/Cart/Cart.dart';
 import 'package:thrid_ecom/Fortend/Screen/Product_Scr/Product/Product_Cat.dart';
+import 'package:thrid_ecom/Fortend/Widget/Resuable%20Code/Form/AllFormField.dart';
 
 class MyDrawerList extends StatefulWidget {
   const MyDrawerList({Key? key}) : super(key: key);
@@ -30,6 +31,10 @@ class _MyDrawerListState extends State<MyDrawerList> {
             title: 'Cart',
             icon: Icons.price_check,
             submitMethod: () => CartScr()),
+        CusDrawerList(
+            title: 'Quan',
+            icon: Icons.price_check,
+            submitMethod: () => QuanField()),
       ])),
     );
   }

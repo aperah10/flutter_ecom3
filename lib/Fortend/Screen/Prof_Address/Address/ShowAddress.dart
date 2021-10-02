@@ -110,9 +110,11 @@ class _AddressShowState extends State<AddressShow> {
         Card(
           child: Container(
             width: double.infinity,
-            height: 30,
+            height: 50,
             child: ListTile(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AddressPostScr.routeName);
+              },
               leading: const Icon(Icons.add),
               title: Text(
                 'Add New Address',
